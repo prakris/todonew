@@ -1,0 +1,117 @@
+import './App.css';
+import React, { Component } from 'react';
+import FormApp from './FormApp';
+import { Row, Col, Container, Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheckCircle, } from '@fortawesome/free-solid-svg-icons'
+
+class App extends Component 
+{
+  constructor(props) {
+    super(props);
+    this.state={
+      inputval : '',
+      data : [],
+      index: '',
+      editStatus :  false,
+    }
+  }
+
+  handleChange = (e) => { 
+    this.setState({ inputval : e.target.value }) 
+  }
+
+  handleEdit = (id) => {
+    let newEdit=this.state.data;
+    let editData= this.state.data.find(cd=>cd.id === id)
+    newEdit.splice(editData,1)
+    this.setState({ inputval : editData.str,
+                   data : newEdit , 
+  editStatus : true ,id:id})
+  }
+
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    let newData=this.state.data
+    if(this.state.editStatus) {
+      let editData=newData.find(cd=>cd.id === this.state.id);
+      editData.str=this.state.inputval;
+      this.setState({
+        data : newData,
+        inputval: '',
+        editStatus : false 
+      })
+    }  
+    else {
+      let str=this.state.inputval;
+      let newDate = new Date()
+      newData.push({id: newDate.getTime(), str, objectStatus:false});
+      this.setState({data : newData, inputval: ''})
+    }
+  }
+
+  handleRemove = (id) => {
+    let newArr=this.state.data;
+    let index = this.state.data.findIndex(t => t.id === id)
+    newArr.splice(index,1);
+    this.setState({ data : newArr});
+  }
+    
+
+    handleComplete = (id) => {
+      let newCom=this.state.data;
+      let changeStatus= newCom.find(cd=> cd.id === id)
+      console.log('change_status',changeStatus)
+      changeStatus.objectStatus = !changeStatus.objectStatus;
+      console.log('change_status',changeStatus)
+      this.setState({data: newCom})
+    }
+  
+ 
+  render()
+  {
+    console.log(this.state)
+    return( 
+      <div className="header1" >
+        <div className="form">
+          <form >
+            <h1 align="center"> ToDo </h1>
+            <input type="text" value={this.state.inputval} 
+             placeholder="what's in your mind"
+             onChange={this.handleChange} />
+           <Button type="submit" className="button1" align="center"
+                disabled={this.state.inputval=== ''} 
+                onClick={this.handleSubmit} >
+                 <FontAwesomeIcon icon={faCheckCircle}/>
+           </Button> 
+          </form>
+        </div> 
+        <Container>
+          <Row>
+            <Col sm={6}>
+              <h2>Uncompleted Task</h2>
+              <FormApp data={this.state.data.filter(t => !t.objectStatus)} 
+                handleEdit={this.handleEdit} 
+                handleComplete={this.handleComplete}
+                handleRemove={this.handleRemove}
+                />
+            </Col>
+            <Col sm={6}>
+              <h2>Completed Task</h2>
+              <FormApp data={this.state.data.filter(t => t.objectStatus )}  
+                handleEdit={this.handleEdit} 
+                handleComplete={this.handleComplete}
+                handleRemove={this.handleRemove}
+                />
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    );
+  }
+}
+
+
+
+export default App;
